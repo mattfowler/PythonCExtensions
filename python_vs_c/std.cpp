@@ -2,7 +2,6 @@
 #include <vector>
 #include <numeric>
 #include <iterator>
-#include <iostream>
 
 #include <Python.h>
 
@@ -32,7 +31,6 @@ static PyObject * std_standard_dev(PyObject *self, PyObject* args)
     for(int i = 0; i < size; i++) {
         list[i] = PyFloat_AS_DOUBLE(PyList_GET_ITEM(input, i));
     }
-    std::cout<<list.size();
 
 	return PyFloat_FromDouble(standardDeviation(list));
 }

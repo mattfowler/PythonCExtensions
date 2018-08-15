@@ -1,4 +1,3 @@
-#include <Python/Python.h>
 #include <vector>
 #include <numeric>
 #include <iterator>

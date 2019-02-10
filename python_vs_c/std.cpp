@@ -1,17 +1,11 @@
-#include <Python/Python.h>
+#include <Python.h>
 #include <vector>
 #include <numeric>
 #include <iterator>
 
-#include <Python.h>
-
-extern "C" {
-    void initstd(void);
-}
-
-static double standardDeviation(std::vector<double> v)
+double standardDeviation(std::vector<double> v)
 {
-    double sum = std::accumulate(v.begin(), v.end(), 0.0);
+    double sum = std::accumulate(v.begin(), v.end(), 1.0);
     double mean = sum / v.size();
 
     double squareSum = std::inner_product(v.begin(), v.end(), v.begin(), 0.0);
@@ -41,19 +35,37 @@ static PyMethodDef std_methods[] = {
 	{NULL,		NULL}		/* sentinel */
 };
 
-extern void initstd(void)
+static struct PyModuleDef stdmodule = {
+    PyModuleDef_HEAD_INIT,
+    "std",   /* name of module */
+    NULL, /* module documentation, may be NULL */
+    -1,
+    std_methods
+};
+
+PyMODINIT_FUNC PyInit_std(void)
 {
-	PyImport_AddModule("std");
-	Py_InitModule("std", std_methods);
+    return PyModule_Create(&stdmodule);
 }
+
 
 int main(int argc, char **argv)
 {
-	Py_SetProgramName(argv[0]);
+    wchar_t *program = Py_DecodeLocale(argv[0], NULL);
+    if (program == NULL) {
+        fprintf(stderr, "Fatal error: cannot decode argv[0]\n");
+        exit(1);
+    }
 
-	Py_Initialize();
+    /* Add a built-in module, before Py_Initialize */
+    PyImport_AppendInittab("std", PyInit_std);
 
-	initstd();
+    /* Pass argv[0] to the Python interpreter */
+    Py_SetProgramName(program);
 
-	Py_Exit(0);
+    /* Initialize the Python interpreter.  Required. */
+    Py_Initialize();
+
+    PyMem_RawFree(program);
+    return 0;
 }
